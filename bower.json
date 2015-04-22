@@ -1,0 +1,21 @@
+{
+  "name": "chromavore",
+  "version": "0.0.1",
+  "homepage": "https://github.com/positlabs/chromavore",
+  "authors": [
+    "Josh Beckwith <josh.beckwith@gmail.com>"
+  ],
+  "description": "generative painting thing",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Seriously.js": "git@github.com:brianchirls/Seriously.js.git"
+  }
+}

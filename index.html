@@ -1,0 +1,118 @@
+<html>
+	
+	<head>
+		<script src="bower_components/Seriously.js/seriously.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.pixelate.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.accumulator.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.displacement.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.hue-saturation.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.color-select.js"></script>
+		<script src="bower_components/Seriously.js/effects/seriously.blur.js"></script>
+
+		<style>
+			
+			html, body {
+				margin: 0;
+				padding: 0;
+				background: black;
+			}
+
+			#target {
+				max-width: 100%;
+				max-height: 100%;
+			}
+
+		</style>
+
+	</head>
+
+	<body>
+		<canvas id="target" width="1920" height="1080"></canvas>
+		<video id="v1" hidden muted autoplay loop>
+			<!-- <source src="videos/warm-neon-birth-HD.mp4" type="video/mp4" /> -->
+			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
+			<!-- <source src="videos/homie-HD.mp4" type="video/mp4" /> -->
+
+		</video>
+		<video id="v2" hidden muted autoplay loop>
+			<!-- <source src="videos/octmesh-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/warm-neon-birth-HD.mp4" type="video/mp4" /> -->
+			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
+			<!-- <source src="videos/homie-HD.mp4" type="video/mp4" /> -->
+
+		</video>
+		<script>
+
+			window.addEventListener('load', function(){
+
+				document.getElementById('v1').playbackRate = .5;
+				document.getElementById('v2').playbackRate = .5;
+
+				var seriously = new Seriously(),
+					v1 = seriously.source('#v1'),
+					v2 = seriously.source('#v2'),
+					colorSelect = seriously.effect('color-select'),
+					hueSat = seriously.effect('hue-saturation'),
+					// blur = seriously.effect('blur'),
+					pixelate = seriously.effect('pixelate'),
+					accumulator = seriously.effect('accumulator'),
+					displacement = seriously.effect('displacement'),
+					target = seriously.target('#target');
+
+					colorSelect.lightnessMin = .7;
+					// colorSelect.saturationMin = 150;
+
+					hueSat.hue = 0;
+
+					accumulator.blendMode = 'normal';
+					accumulator.opacity = .1;
+
+					displacement.fillMode = 'color'; // wrap, color, ignore, clamp
+					displacement.mapScale = [.01, .01];
+					displacement.color = [0,0,0, 0];
+					// displacement.offset = .1;
+
+					// blur.amount = 0;
+					pixelate.pixelSize = [1, 1];
+
+					// hook up nodes
+					hueSat.source = v1;
+					colorSelect.source = hueSat;
+					displacement.source = colorSelect;
+					displacement.map = v2;
+					pixelate.source = displacement;
+					accumulator.source = pixelate;
+					target.source = accumulator;
+
+					// every frame
+					var time = 0;
+					seriously.go(function(){
+						time ++;
+						displacement.amount = Math.sin(time*.008) * 10;
+						// hueSat.hue = Math.sin(time*.002);
+						accumulator.opacity = Math.abs(Math.sin(time*.003)) * .1;
+					});
+
+					function randomize(){
+
+						var rand = Math.random();
+						if(rand < .33){
+							accumulator.blendMode = "multiply";
+							// accumulator.opacity = .01;
+						
+						}else if(rand < .66){
+							accumulator.blendMode = "screen";
+							// accumulator.opacity = .02;
+						}else{
+							accumulator.blendMode = "normal";
+							// accumulator.opacity = .05;
+						}
+					};
+					setInterval(randomize, 8000);
+
+			});
+
+		</script>
+	</body>
+
+</html>
