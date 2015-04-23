@@ -29,17 +29,21 @@
 	<body>
 		<canvas id="target" width="1920" height="1080"></canvas>
 		<video id="v1" hidden muted autoplay loop>
-			<!-- <source src="videos/warm-neon-birth-HD.mp4" type="video/mp4" /> -->
-			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
-			<!-- <source src="videos/homie-HD.mp4" type="video/mp4" /> -->
-
+			<source src="videos/bilousby-HD.mp4" type="video/mp4" />
+			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/crystmounts-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/multi-turbs-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/KOLL-HD.mp4" type="video/mp4" /> -->
 		</video>
 		<video id="v2" hidden muted autoplay loop>
-			<!-- <source src="videos/octmesh-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/bilousby-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
+			<source src="videos/crystmounts-HD.mp4" type="video/mp4" />
 			<!-- <source src="videos/warm-neon-birth-HD.mp4" type="video/mp4" /> -->
-			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
-			<!-- <source src="videos/homie-HD.mp4" type="video/mp4" /> -->
-
+			<!-- <source src="videos/multi-turbs-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
+			<!-- <source src="videos/KOLL-HD.mp4" type="video/mp4" /> -->
 		</video>
 		<script>
 
@@ -59,10 +63,12 @@
 					displacement = seriously.effect('displacement'),
 					target = seriously.target('#target');
 
-					colorSelect.lightnessMin = .7;
-					// colorSelect.saturationMin = 150;
+					// colorSelect.lightnessMax = .3;
+					colorSelect.lightnessMin = .5;
+					// colorSelect.saturationMin = 10;
 
 					hueSat.hue = 0;
+					// hueSat.saturation = -.2;
 
 					accumulator.blendMode = 'normal';
 					accumulator.opacity = .1;
@@ -70,27 +76,27 @@
 					displacement.fillMode = 'color'; // wrap, color, ignore, clamp
 					displacement.mapScale = [.01, .01];
 					displacement.color = [0,0,0, 0];
-					// displacement.offset = .1;
+					displacement.offset = .1;
 
 					// blur.amount = 0;
-					pixelate.pixelSize = [1, 1];
+					// pixelate.pixelSize = [1, 1];
 
 					// hook up nodes
 					hueSat.source = v1;
 					colorSelect.source = hueSat;
 					displacement.source = colorSelect;
 					displacement.map = v2;
-					pixelate.source = displacement;
-					accumulator.source = pixelate;
+					// pixelate.source = displacement;
+					accumulator.source = displacement;
 					target.source = accumulator;
 
 					// every frame
 					var time = 0;
 					seriously.go(function(){
 						time ++;
-						displacement.amount = Math.sin(time*.008) * 10;
-						// hueSat.hue = Math.sin(time*.002);
-						accumulator.opacity = Math.abs(Math.sin(time*.003)) * .1;
+						displacement.amount = Math.sin(time*.008) * 100;
+						hueSat.hue = Math.sin(time*.002);
+						// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5;
 					});
 
 					function randomize(){
@@ -98,14 +104,14 @@
 						var rand = Math.random();
 						if(rand < .33){
 							accumulator.blendMode = "multiply";
-							// accumulator.opacity = .01;
+							accumulator.opacity = .01;
 						
 						}else if(rand < .66){
 							accumulator.blendMode = "screen";
-							// accumulator.opacity = .02;
+							accumulator.opacity = .02;
 						}else{
 							accumulator.blendMode = "normal";
-							// accumulator.opacity = .05;
+							accumulator.opacity = .03;
 						}
 					};
 					setInterval(randomize, 8000);
