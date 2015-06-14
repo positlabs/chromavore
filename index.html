@@ -2,12 +2,10 @@
 	
 	<head>
 		<script src="bower_components/Seriously.js/seriously.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.pixelate.js"></script>
 		<script src="bower_components/Seriously.js/effects/seriously.accumulator.js"></script>
 		<script src="bower_components/Seriously.js/effects/seriously.displacement.js"></script>
 		<script src="bower_components/Seriously.js/effects/seriously.hue-saturation.js"></script>
 		<script src="bower_components/Seriously.js/effects/seriously.color-select.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.blur.js"></script>
 
 		<style>
 			
@@ -15,6 +13,8 @@
 				margin: 0;
 				padding: 0;
 				background: black;
+				color: white;
+				font-family: sans-serif;
 			}
 
 			#target {
@@ -22,13 +22,30 @@
 				max-height: 100%;
 			}
 
+			video, 
+			.controls {
+				width: 400px;
+				display: inline-block;
+				float: left;
+				margin: 10px 5px;
+			}
+
+			.control {
+				width: 100%
+			}
+
+			.control input[type="range"]{
+				width: 100%;
+			}
+
+
 		</style>
 
 	</head>
 
 	<body>
 		<canvas id="target" width="1920" height="1080"></canvas>
-		<video id="v1" hidden muted autoplay loop>
+		<video id="v1" muted autoplay loop controls>
 			<!-- <source src="videos/bilousby-HD.mp4" type="video/mp4" /> -->
 			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
 			<!-- <source src="videos/crystmounts-HD.mp4" type="video/mp4" /> -->
@@ -36,7 +53,7 @@
 			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
 			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
 		</video>
-		<video id="v2" hidden muted autoplay loop>
+		<video id="v2" muted autoplay loop controls>
 			<!-- <source src="videos/bilousby-HD.mp4" type="video/mp4" /> -->
 			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
 			<source src="videos/crystmounts-HD.mp4" type="video/mp4" />
@@ -45,9 +62,32 @@
 			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
 			<!-- <source src="videos/KOLL-HD.mp4" type="video/mp4" /> -->
 		</video>
+
+		<div class="controls">
+			
+			<div class="control">
+				<p>mode</p>
+				<select id="blendMode">
+					<option value="normal">normal</option>
+					<option value="screen">screen</option>
+					<option value="multiply">multiply</option>
+				</select>
+			</div>
+			<div class="control">
+				<p>opacity</p>
+				<input type="range" min="0" max="1" value=".1" step=".01" id="opacity" />
+			</div>
+			<div class="control">
+				<p>displacement</p>
+				<input type="range" min="0" max="30" value="1" step=".01" id="displacement" />
+			</div>
+		</div>
+
 		<script>
 
 			window.addEventListener('load', function(){
+
+				setupDragDrop();
 
 				document.getElementById('v1').playbackRate = .5;
 				document.getElementById('v2').playbackRate = .5;
@@ -55,13 +95,21 @@
 				var seriously = new Seriously(),
 					v1 = seriously.source('#v1'),
 					v2 = seriously.source('#v2'),
+					v1Format = seriously.transform('reformat'),
+					v2Format = seriously.transform('reformat'),
 					colorSelect = seriously.effect('color-select'),
 					hueSat = seriously.effect('hue-saturation'),
-					// blur = seriously.effect('blur'),
-					pixelate = seriously.effect('pixelate'),
 					accumulator = seriously.effect('accumulator'),
 					displacement = seriously.effect('displacement'),
 					target = seriously.target('#target');
+
+					// make the videos cover the canvas. 
+					v1Format.mode = 'cover';
+					v1Format.width = 1920;
+					v1Format.height = 1080;
+					v2Format.mode = 'cover';
+					v2Format.width = 1920;
+					v2Format.height = 1080;
 
 					// colorSelect.lightnessMax = .3;
 					colorSelect.lightnessMin = .5;
@@ -70,23 +118,22 @@
 					hueSat.hue = 0;
 					// hueSat.saturation = -.2;
 
-					accumulator.blendMode = 'normal';
-					accumulator.opacity = .1;
+					accumulator.blendMode = '#blendMode';
+					accumulator.opacity = '#opacity';
 
 					displacement.fillMode = 'color'; // wrap, color, ignore, clamp
 					displacement.mapScale = [.01, .01];
 					displacement.color = [0,0,0, 0];
 					displacement.offset = .1;
-
-					// blur.amount = 0;
-					// pixelate.pixelSize = [1, 1];
+					displacement.amount = '#displacement'
 
 					// hook up nodes
-					hueSat.source = v1;
+					v1Format.source = v1;
+					v2Format.source = v2;
+					hueSat.source = v1Format;
 					colorSelect.source = hueSat;
 					displacement.source = colorSelect;
-					displacement.map = v2;
-					// pixelate.source = displacement;
+					displacement.map = v2Format;
 					accumulator.source = displacement;
 					target.source = accumulator;
 
@@ -94,29 +141,45 @@
 					var time = 0;
 					seriously.go(function(){
 						time ++;
-						displacement.amount = Math.sin(time*.008) * 100;
-						hueSat.hue = Math.sin(time*.002);
+						// displacement.amount = Math.sin(time*.008) * 100;
+						// hueSat.hue = Math.sin(time*.002);
 						// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5;
 					});
 
-					function randomize(){
-
-						var rand = Math.random();
-						if(rand < .33){
-							accumulator.blendMode = "multiply";
-							accumulator.opacity = .01;
-						
-						}else if(rand < .66){
-							accumulator.blendMode = "screen";
-							accumulator.opacity = .02;
-						}else{
-							accumulator.blendMode = "normal";
-							accumulator.opacity = .03;
-						}
-					};
-					setInterval(randomize, 8000);
-
 			});
+
+			function setupDragDrop(){
+
+				// prevent accidental drop, which would load the file and kick you out of chromavore
+  				document.addEventListener('dragover', function(e){
+	  				e.preventDefault();
+  				}, false);
+
+				document.getElementById('v1').addEventListener('dragover', onDragOver, true);
+				document.getElementById('v2').addEventListener('dragover', onDragOver, true);
+				document.getElementById('v1').addEventListener('drop', onDrop, true);
+				document.getElementById('v2').addEventListener('drop', onDrop, true);
+
+			}
+
+			function onDragOver(e){
+				e.dataTransfer.dropEffect = 'copy';
+			}
+
+			function onDrop(e){
+				// console.log('e', e.dataTransfer.files[0]);
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				var targetVid = e.currentTarget;
+				var reader = new FileReader();
+				reader.readAsDataURL(e.dataTransfer.files[0]);
+				reader.addEventListener('load', function(){
+					targetVid.src = reader.result;
+					targetVid.playbackRate = .5;
+				});
+			}
 
 		</script>
 
