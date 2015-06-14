@@ -45,32 +45,27 @@
 
 	<body>
 		<canvas id="target" width="1920" height="1080"></canvas>
-		<video id="v1" muted autoplay loop controls>
-			<!-- <source src="videos/bilousby-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/crystmounts-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/multi-turbs-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
-			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
-		</video>
-		<video id="v2" muted autoplay loop controls>
-			<!-- <source src="videos/bilousby-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/smoke-four-HD.mp4" type="video/mp4" /> -->
-			<source src="videos/crystmounts-HD.mp4" type="video/mp4" />
-			<!-- <source src="videos/warm-neon-birth-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/multi-turbs-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/built.ee-HD.mp4" type="video/mp4" /> -->
-			<!-- <source src="videos/KOLL-HD.mp4" type="video/mp4" /> -->
-		</video>
 
 		<div class="controls">
 			<div>
 				<h3>Chromavore</h3>
 				<p>
-					Drag and drop videos, and use the controls to affect the canvas. Right-click -> save-as to save an image.
+					Load your own videos by dropping a video file onto the one you want to replace. Use the controls to affect the canvas. Right-click -> save-as to save an image.
 				</p>
 			</div>
 			<hr>
+			<div class="control">
+				<p>opacity</p>
+				<input type="range" min="0" max="1" value=".1" step=".01" id="opacity" />
+			</div>
+			<div class="control">
+				<p>displacement</p>
+				<input type="range" min="0" max="30" value="15" step=".01" id="displacement" />
+			</div>
+			<div class="control">
+				<p>lightness min</p>
+				<input type="range" min="0" max="1" value=".5" step=".01" id="lightness-min" />
+			</div>
 			<div class="control">
 				<p>mode</p>
 				<select id="blendMode">
@@ -79,15 +74,14 @@
 					<option value="multiply">multiply</option>
 				</select>
 			</div>
-			<div class="control">
-				<p>opacity</p>
-				<input type="range" min="0" max="1" value=".1" step=".01" id="opacity" />
-			</div>
-			<div class="control">
-				<p>displacement</p>
-				<input type="range" min="0" max="30" value="1" step=".01" id="displacement" />
-			</div>
 		</div>
+
+		<video id="v1" muted autoplay loop controls>
+			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
+		</video>
+		<video id="v2" muted autoplay loop controls>
+			<source src="videos/crystmounts-HD.mp4" type="video/mp4" />
+		</video>
 
 		<script>
 
@@ -118,7 +112,7 @@
 					v2Format.height = 1080;
 
 					// colorSelect.lightnessMax = .3;
-					colorSelect.lightnessMin = .5;
+					colorSelect.lightnessMin = '#lightness-min';
 					// colorSelect.saturationMin = 10;
 
 					hueSat.hue = 0;
@@ -151,6 +145,8 @@
 						// hueSat.hue = Math.sin(time*.002);
 						// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5;
 					});
+
+					setTimeout(function(){seriously.stop()}, 5000);
 
 			});
 
