@@ -16,6 +16,6 @@
     "tests"
   ],
   "dependencies": {
-    "Seriously.js": "git@github.com:brianchirls/Seriously.js.git"
+    "Seriously.js": "git@github.com:brianchirls/Seriously.js.git#develop"
   }
 }
