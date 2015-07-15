@@ -5,6 +5,8 @@ Live demo: http://positlabs.github.io/chromavore/
 
 [![chromavore title image](http://positlabs.github.io/chromavore/chromavore.jpg)](http://positlabs.github.io/chromavore/)
 
+[Gallery on imgur](http://imgur.com/gallery/3Qkp3#42guVtR)
+
 To save a snapshot, right-click > save as.
 
 Install dependencies with `bower install`.
