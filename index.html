@@ -89,8 +89,8 @@
 
 				setupDragDrop();
 
-				document.getElementById('v1').playbackRate = .5;
-				document.getElementById('v2').playbackRate = .5;
+				document.getElementById('v1').playbackRate = 0.5;
+				document.getElementById('v2').playbackRate = 0.5;
 
 				var seriously = new Seriously(),
 					v1 = seriously.source('#v1'),
@@ -122,10 +122,10 @@
 					accumulator.opacity = '#opacity';
 
 					displacement.fillMode = 'color'; // wrap, color, ignore, clamp
-					displacement.mapScale = [.01, .01];
+					displacement.mapScale = [0.01, 0.01];
 					displacement.color = [0,0,0, 0];
-					displacement.offset = .1;
-					displacement.amount = '#displacement'
+					displacement.offset = 0.1;
+					displacement.amount = '#displacement';
 
 					// hook up nodes
 					v1Format.source = v1;
@@ -145,8 +145,6 @@
 						// hueSat.hue = Math.sin(time*.002);
 						// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5;
 					});
-
-					setTimeout(function(){seriously.stop()}, 5000);
 
 			});
 
@@ -179,7 +177,7 @@
 				reader.readAsDataURL(e.dataTransfer.files[0]);
 				reader.addEventListener('load', function(){
 					targetVid.src = reader.result;
-					targetVid.playbackRate = .5;
+					targetVid.playbackRate = 0.5;
 				});
 			}
 
