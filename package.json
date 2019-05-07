@@ -1,0 +1,22 @@
+{
+  "name": "chromavore",
+  "version": "1.0.0",
+  "description": "Generative painting thing",
+  "main": "index.html",
+  "scripts": {
+    "serve": "serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/positlabs/chromavore.git"
+  },
+  "author": "positlabs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/positlabs/chromavore/issues"
+  },
+  "homepage": "https://github.com/positlabs/chromavore#readme",
+  "devDependencies": {
+    "serve": "^11.0.0"
+  }
+}
