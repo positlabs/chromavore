@@ -1,190 +1,220 @@
 <html>
-	
-	<head>
-		<script src="bower_components/Seriously.js/seriously.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.accumulator.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.displacement.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.hue-saturation.js"></script>
-		<script src="bower_components/Seriously.js/effects/seriously.color-select.js"></script>
 
-		<style>
-			
-			html, body {
-				margin: 0;
-				padding: 0;
-				background: black;
-				color: white;
-				font-family: sans-serif;
-			}
+<head>
+	<script src="lib/Seriously.js/seriously.js"></script>
+	<script src="lib/Seriously.js/effects/seriously.accumulator.js"></script>
+	<script src="lib/Seriously.js/effects/seriously.displacement.js"></script>
+	<script src="lib/Seriously.js/effects/seriously.hue-saturation.js"></script>
+	<script src="lib/Seriously.js/effects/seriously.color-select.js"></script>
 
-			#target {
-				max-width: 100%;
-				max-height: 100%;
-			}
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			background: black;
+			color: white;
+			font-family: sans-serif;
+		}
 
-			video, 
-			.controls {
-				width: 400px;
-				display: inline-block;
-				float: left;
-				margin: 10px 5px;
-			}
+		#target {
+			max-width: 100%;
+			max-height: 100%;
+		}
 
-			.control {
-				width: 100%
-			}
+		video,
+		.controls {
+			width: 400px;
+			float: left;
+			margin: 10px 5px;
+		}
 
-			.control input[type="range"]{
-				width: 100%;
-			}
+		.control {
+			width: 100%
+		}
 
+		.control input[type="range"] {
+			width: 100%;
+		}
+	</style>
 
-		</style>
+</head>
 
-	</head>
+<body>
+	<canvas id="target" width="1920" height="1080"></canvas>
 
-	<body>
-		<canvas id="target" width="1920" height="1080"></canvas>
-
-		<div class="controls">
-			<div>
-				<h3>Chromavore</h3>
-				<p>
-					Load your own videos by dropping a video file onto the one you want to replace. Use the controls to affect the canvas. Right-click -> save-as to save an image.
-				</p>
-			</div>
-			<hr>
-			<div class="control">
-				<p>opacity</p>
-				<input type="range" min="0" max="1" value=".1" step=".01" id="opacity" />
-			</div>
-			<div class="control">
-				<p>displacement</p>
-				<input type="range" min="0" max="30" value="15" step=".01" id="displacement" />
-			</div>
-			<div class="control">
-				<p>lightness min</p>
-				<input type="range" min="0" max="1" value=".5" step=".01" id="lightness-min" />
-			</div>
-			<div class="control">
-				<p>mode</p>
-				<select id="blendMode">
-					<option value="normal">normal</option>
-					<option value="screen">screen</option>
-					<option value="multiply">multiply</option>
-				</select>
-			</div>
+	<div class="controls">
+		<div>
+			<h3>Chromavore</h3>
+			<p>
+				Load your own videos by dropping a video file onto the one you want to replace. Use the controls to affect the
+				canvas. Right-click -> save-as to save an image.
+			</p>
 		</div>
+		<hr>
+		<div class="control">
+			<p>opacity</p>
+			<input type="range" min="0" max="1" value=".1" step=".01" id="opacity" />
+		</div>
+		<div class="control">
+			<p>displacement</p>
+			<input type="range" min="0" max="30" value="15" step=".01" id="displacement" />
+		</div>
+		<div class="control">
+			<p>lightness min</p>
+			<input type="range" min="0" max="1" value=".5" step=".01" id="lightness-min" />
+		</div>
+		<div class="control">
+			<p>mode</p>
+			<select id="blendMode">
+				<option value="normal">normal</option>
+				<option value="screen">screen</option>
+				<option value="multiply">multiply</option>
+			</select>
+		</div>
+	</div>
 
-		<video id="v1" muted autoplay loop controls>
+	<div id="v1">
+		<img style="display: none">
+		<video muted autoplay loop controls>
 			<source src="videos/KOLL-HD.mp4" type="video/mp4" />
 		</video>
-		<video id="v2" muted autoplay loop controls>
+	</div>
+	<div id="v2">
+		<img style="display: none">
+		<video muted autoplay loop controls>
 			<source src="videos/crystmounts-HD.mp4" type="video/mp4" />
 		</video>
+	</div>
 
-		<script>
+	<script>
+		window.addEventListener('load', function () {
 
-			window.addEventListener('load', function(){
+			setupDragDrop()
 
-				setupDragDrop();
+			document.querySelector('#v1 video').playbackRate = .5
+			document.querySelector('#v2 video').playbackRate = .5
 
-				document.getElementById('v1').playbackRate = 0.5;
-				document.getElementById('v2').playbackRate = 0.5;
+			var seriously = new Seriously(),
+				v1 = seriously.source('#v1 video'),
+				v2 = seriously.source('#v2 video'),
+				v1Format = seriously.transform('reformat'),
+				v2Format = seriously.transform('reformat'),
+				colorSelect = seriously.effect('color-select'),
+				hueSat = seriously.effect('hue-saturation'),
+				accumulator = seriously.effect('accumulator'),
+				displacement = seriously.effect('displacement'),
+				target = seriously.target('#target')
 
-				var seriously = new Seriously(),
-					v1 = seriously.source('#v1'),
-					v2 = seriously.source('#v2'),
-					v1Format = seriously.transform('reformat'),
-					v2Format = seriously.transform('reformat'),
-					colorSelect = seriously.effect('color-select'),
-					hueSat = seriously.effect('hue-saturation'),
-					accumulator = seriously.effect('accumulator'),
-					displacement = seriously.effect('displacement'),
-					target = seriously.target('#target');
+			// make the videos cover the canvas.
+			v1Format.mode = 'cover'
+			v1Format.width = 1920
+			v1Format.height = 1080
+			v2Format.mode = 'cover'
+			v2Format.width = 1920
+			v2Format.height = 1080
 
-					// make the videos cover the canvas. 
-					v1Format.mode = 'cover';
-					v1Format.width = 1920;
-					v1Format.height = 1080;
-					v2Format.mode = 'cover';
-					v2Format.width = 1920;
-					v2Format.height = 1080;
+			// colorSelect.lightnessMax = .3
+			colorSelect.lightnessMin = '#lightness-min'
+			// colorSelect.saturationMin = 10
 
-					// colorSelect.lightnessMax = .3;
-					colorSelect.lightnessMin = '#lightness-min';
-					// colorSelect.saturationMin = 10;
+			hueSat.hue = 0
+			// hueSat.saturation = -.2
 
-					hueSat.hue = 0;
-					// hueSat.saturation = -.2;
+			accumulator.blendMode = '#blendMode'
+			accumulator.opacity = '#opacity'
 
-					accumulator.blendMode = '#blendMode';
-					accumulator.opacity = '#opacity';
+			displacement.fillMode = 'color' // wrap, color, ignore, clamp
+			displacement.mapScale = [.01, .01]
+			displacement.color = [0, 0, 0, 0]
+			displacement.offset = .1
+			displacement.amount = '#displacement'
 
-					displacement.fillMode = 'color'; // wrap, color, ignore, clamp
-					displacement.mapScale = [0.01, 0.01];
-					displacement.color = [0,0,0, 0];
-					displacement.offset = 0.1;
-					displacement.amount = '#displacement';
+			// hook up nodes
+			v1Format.source = v1
+			v2Format.source = v2
+			hueSat.source = v1Format
+			colorSelect.source = hueSat
+			displacement.source = colorSelect
+			displacement.map = v2Format
+			accumulator.source = displacement
+			target.source = accumulator
 
-					// hook up nodes
-					v1Format.source = v1;
-					v2Format.source = v2;
-					hueSat.source = v1Format;
-					colorSelect.source = hueSat;
-					displacement.source = colorSelect;
-					displacement.map = v2Format;
-					accumulator.source = displacement;
-					target.source = accumulator;
+			// every frame
+			var time = 0
+			seriously.go(function () {
+				time++
+				// displacement.amount = Math.sin(time*.008) * 100
+				// hueSat.hue = Math.sin(time*.002)
+				// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5
+			})
 
-					// every frame
-					var time = 0;
-					seriously.go(function(){
-						time ++;
-						// displacement.amount = Math.sin(time*.008) * 100;
-						// hueSat.hue = Math.sin(time*.002);
-						// accumulator.opacity = Math.abs(Math.sin(time*.003)) * .5;
-					});
+			// setTimeout(function () {
+			// 	seriously.stop()
+			// }, 5000) // ??
 
-			});
-
-			function setupDragDrop(){
+			function setupDragDrop() {
 
 				// prevent accidental drop, which would load the file and kick you out of chromavore
-  				document.addEventListener('dragover', function(e){
-	  				e.preventDefault();
-  				}, false);
+				document.addEventListener('dragover', function (e) {
+					e.preventDefault()
+				}, false)
 
-				document.getElementById('v1').addEventListener('dragover', onDragOver, true);
-				document.getElementById('v2').addEventListener('dragover', onDragOver, true);
-				document.getElementById('v1').addEventListener('drop', onDrop, true);
-				document.getElementById('v2').addEventListener('drop', onDrop, true);
+				document.getElementById('v1').addEventListener('dragover', onDragOver, true)
+				document.getElementById('v2').addEventListener('dragover', onDragOver, true)
+				document.getElementById('v1').addEventListener('drop', onDrop, true)
+				document.getElementById('v2').addEventListener('drop', onDrop, true)
 
 			}
 
-			function onDragOver(e){
-				e.dataTransfer.dropEffect = 'copy';
+			function onDragOver(e) {
+				e.dataTransfer.dropEffect = 'copy'
 			}
 
-			function onDrop(e){
-				// console.log('e', e.dataTransfer.files[0]);
+			function onDrop(e) {
+				console.log(e.currentTarget)
 
-				e.preventDefault();
-				e.stopPropagation();
+				var file = e.dataTransfer.files[0]
+				// console.log(file)
 
-				var targetVid = e.currentTarget;
-				var reader = new FileReader();
-				reader.readAsDataURL(e.dataTransfer.files[0]);
-				reader.addEventListener('load', function(){
-					targetVid.src = reader.result;
-					targetVid.playbackRate = 0.5;
-				});
+				e.preventDefault()
+				e.stopPropagation()
+
+				var targetContainer = e.currentTarget
+				var reader = new FileReader()
+				reader.readAsDataURL(file)
+				reader.addEventListener('load', function () {
+					var isImage = file.type.match('image/') !== null
+					// console.log('isImage', isImage)
+					var img = targetContainer.querySelector('img')
+					var vid = targetContainer.querySelector('video')
+					var targetElType = isImage ? 'img' : 'video'
+					if (isImage) {
+						img.src = reader.result
+						img.style.display = 'block'
+						vid.style.display = 'none'
+						vid.pause()
+					} else {
+						img.style.display = 'none'
+						vid.style.display = 'block'
+						vid.src = reader.result
+						target.playbackRate = .5
+						vid.play()
+					}
+
+					var formatter = targetContainer.id === 'v1' ? v1Format : v2Format
+					formatter.source = seriously.source(`#${targetContainer.id} ${targetElType}`)
+				})
 			}
+		})
+	</script>
 
-		</script>
+	<a href="https://github.com/positlabs/chromavore" target="_blank"><img
+			style="position: absolute; top: 0; left: 0; border: 0;"
+			src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67"
+			alt="Fork me on GitHub"
+			data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
 
-		<a href="https://github.com/positlabs/chromavore" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
-
-	</body>
+</body>
 
 </html>
